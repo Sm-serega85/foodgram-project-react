@@ -11,7 +11,8 @@ from .models import CustomUser, Subscribe
 
 
 class UsersViewSet(UserViewSet):
-    """ModelViewSet для Пользователя на основе UserViewSet из Djoser бибилиотеки."""
+    """ModelViewSet для Пользователя на основе UserViewSet
+     из Djoser бибилиотеки."""
     queryset = CustomUser.objects.all()
     serializer_class = UsersSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
