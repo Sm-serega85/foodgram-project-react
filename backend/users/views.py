@@ -1,25 +1,25 @@
+from api.serializers import UsersSerializer, SubscribeSerializer
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
-from rest_framework.decorators import action
-from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+from rest_framework.decorators import action
+from rest_framework.permissions import (IsAuthenticatedOrReadOnly,
+                                        IsAuthenticated)
+from rest_framework.response import Response
 
 from .models import CustomUser, Subscribe
-from api.serializers import UsersSerializer, SubscribeSerializer
 
 
 class UsersViewSet(UserViewSet):
-    """
-    ModelViewSet для Пользователя на основе UserViewSet из Djoser бибилиотеки
-    """
+    """ModelViewSet для Пользователя на основе UserViewSet из Djoser бибилиотеки."""
     queryset = CustomUser.objects.all()
     serializer_class = UsersSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly, )
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 
     @action(methods=['post', 'delete'], detail=True,
             permission_classes=[IsAuthenticated])
     def subscribe(self, request, id):
+        """Функция оформления подписки."""
         user = request.user
         author = get_object_or_404(CustomUser, id=id)
 
@@ -38,6 +38,7 @@ class UsersViewSet(UserViewSet):
     @action(methods=['get'], detail=False,
             permission_classes=[IsAuthenticated])
     def subscriptions(self, request):
+        """Функция вывода подписок."""
         queryset = CustomUser.objects.filter(following__user=request.user)
         page = self.paginate_queryset(queryset)
         serializer = SubscribeSerializer(

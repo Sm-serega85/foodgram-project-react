@@ -1,15 +1,5 @@
 from django.db.models import Sum
-from rest_framework.decorators import action
 from django.shortcuts import get_object_or_404
-from rest_framework import status, filters
-from rest_framework.response import Response
-from rest_framework.permissions import (
-    SAFE_METHODS,
-    IsAuthenticated,
-    IsAuthenticatedOrReadOnly,
-)
-from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
-
 from recipes.models import (
     Favorite,
     ShoppingCart,
@@ -18,6 +8,17 @@ from recipes.models import (
     Recipe,
     Tag,
 )
+from rest_framework import status, filters
+from rest_framework.decorators import action
+from rest_framework.permissions import (
+    SAFE_METHODS,
+    IsAuthenticated,
+    IsAuthenticatedOrReadOnly,
+)
+from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
+
+from .methods import create_shopping_cart
 from .serializers import (
     FavoriteRecipeSerializer,
     ShoppingCartSerializer,
@@ -26,7 +27,6 @@ from .serializers import (
     RecipeListSerializer,
     TagSerializer,
 )
-from .methods import create_shopping_cart
 
 
 class IngredientsViewSet(ReadOnlyModelViewSet):
@@ -35,7 +35,7 @@ class IngredientsViewSet(ReadOnlyModelViewSet):
     """
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly, )
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('^name',)
     pagination_class = None
@@ -47,7 +47,7 @@ class TagsViewSet(ReadOnlyModelViewSet):
     """
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly, )
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     pagination_class = None
 
 
@@ -56,7 +56,7 @@ class RecipesViewSet(ModelViewSet):
     ModelViewSet для Рецептов
     """
     queryset = Recipe.objects.all()
-    permission_classes = (IsAuthenticatedOrReadOnly, )
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get_serializer_class(self):
         if self.action in SAFE_METHODS:
@@ -73,18 +73,22 @@ class RecipesViewSet(ModelViewSet):
         user = request.user
 
         if request.method == 'POST':
-            if not ShoppingCart.objects.filter(user=user.id, recipe=recipe).exists():
+            if not ShoppingCart.objects.filter(user=user.id, recipe=recipe) \
+                    .exists():
                 serializer = ShoppingCartSerializer(
                     data={'user': user.id, 'recipe': recipe.id}
                 )
                 serializer.is_valid(raise_exception=True)
                 serializer.save()
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
+                return Response(serializer.data,
+                                status=status.HTTP_201_CREATED)
             return Response({'error': 'Рецепт уже в корзине!'},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        if ShoppingCart.objects.filter(user=user.id, recipe=recipe).exists():
-            ShoppingCart.objects.filter(user=user.id, recipe=recipe).delete()
+        if ShoppingCart.objects.filter(user=user.id,
+                                       recipe=recipe).exists():
+            ShoppingCart.objects.filter(user=user.id,
+                                        recipe=recipe).delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response({'error': 'Рецепт не в корзине!'},
                         status=status.HTTP_400_BAD_REQUEST)
@@ -104,18 +108,22 @@ class RecipesViewSet(ModelViewSet):
         user = request.user
 
         if request.method == 'POST':
-            if not Favorite.objects.filter(user=user.id, recipe=recipe).exists():
+            if not Favorite.objects.filter(user=user.id,
+                                           recipe=recipe).exists():
                 serializer = FavoriteRecipeSerializer(
                     data={'user': user.id, 'recipe': recipe.id}
                 )
                 serializer.is_valid(raise_exception=True)
                 serializer.save()
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
+                return Response(serializer.data,
+                                status=status.HTTP_201_CREATED)
             return Response({'error': 'Рецепт уже в избранном!'},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        if Favorite.objects.filter(user=user.id, recipe=recipe).exists():
-            Favorite.objects.filter(user=user.id, recipe=recipe).delete()
+        if Favorite.objects.filter(user=user.id,
+                                   recipe=recipe).exists():
+            Favorite.objects.filter(user=user.id,
+                                    recipe=recipe).delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response({'error': 'Рецепт не в избранном!'},
                         status=status.HTTP_400_BAD_REQUEST)

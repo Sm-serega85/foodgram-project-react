@@ -3,9 +3,7 @@ from django.db import models
 
 
 class CustomUser(AbstractUser):
-    """
-    Кастом-модель Пользователя
-    """
+    """Кастом-модель Пользователя."""
     email = models.EmailField(
         max_length=254,
         unique=True,
@@ -46,9 +44,7 @@ class CustomUser(AbstractUser):
 
 
 class Subscribe(models.Model):
-    """
-    Модель подписок на автора рецептов
-    """
+    """Модель подписок на автора рецептов."""
     user = models.ForeignKey(
         CustomUser,
         related_name='follower',
