@@ -12,16 +12,12 @@ from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
 from .methods import create_shopping_cart
 from .serializers import (
-    FavoriteRecipeSerializer,
-    ShoppingCartSerializer,
     IngredientSerializer,
     RecipeCreateSerializer,
     RecipeListSerializer,
     TagSerializer,
 )
 from recipes.models import (
-    Favorite,
-    ShoppingCart,
     IngredientInRecipe,
     Ingredient,
     Recipe,

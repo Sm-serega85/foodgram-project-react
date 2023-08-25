@@ -11,10 +11,7 @@ from recipes.models import (
     Favorite,
     ShoppingCart,
 )
-from users.models import (
-    CustomUser,
-    Subscribe
-)
+from users.models import CustomUser
 
 MIN_AMOUNT = 1
 MAX_AMOUNT = 32000
@@ -123,7 +120,8 @@ class IngredientInRecipeSerializer(serializers.ModelSerializer):
 class AddIngredientSerializer(serializers.ModelSerializer):
     """Сериализатор для создания ингредиентов в рецептах."""
     id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
-    amount = serializers.IntegerField(max_value=MAX_AMOUNT, min_value=MIN_AMOUNT)
+    amount = serializers.IntegerField(max_value=MAX_AMOUNT,
+                                      min_value=MIN_AMOUNT)
 
     class Meta:
         model = IngredientInRecipe
@@ -138,7 +136,8 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         queryset=Tag.objects.all(), many=True
     )
     image = Base64ImageField()
-    cooking_time = serializers.IntegerField(max_value=MAX_AMOUNT, min_value=MIN_AMOUNT)
+    cooking_time = serializers.IntegerField(max_value=MAX_AMOUNT,
+                                            min_value=MIN_AMOUNT)
 
     class Meta:
         model = Recipe
