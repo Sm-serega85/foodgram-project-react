@@ -30,6 +30,7 @@ class CustomUser(AbstractUser):
     )
 
     class Meta:
+        ordering = ('-id',)
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
         constraints = [
@@ -59,7 +60,7 @@ class Subscribe(models.Model):
     )
 
     class Meta:
-        ordering = ['-id']
+        ordering = ('-author_id',)
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
         constraints = [

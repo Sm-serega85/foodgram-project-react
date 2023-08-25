@@ -1,13 +1,5 @@
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404
-from recipes.models import (
-    Favorite,
-    ShoppingCart,
-    IngredientInRecipe,
-    Ingredient,
-    Recipe,
-    Tag,
-)
 from rest_framework import status, filters
 from rest_framework.decorators import action
 from rest_framework.permissions import (
@@ -26,6 +18,14 @@ from .serializers import (
     RecipeCreateSerializer,
     RecipeListSerializer,
     TagSerializer,
+)
+from recipes.models import (
+    Favorite,
+    ShoppingCart,
+    IngredientInRecipe,
+    Ingredient,
+    Recipe,
+    Tag,
 )
 
 
@@ -71,24 +71,19 @@ class RecipesViewSet(ModelViewSet):
         """
         recipe = get_object_or_404(Recipe, id=kwargs['pk'])
         user = request.user
+        recipe_in_cart = user.shopping_cart.filter(recipe=recipe)
 
         if request.method == 'POST':
-            if not ShoppingCart.objects.filter(user=user.id, recipe=recipe) \
-                    .exists():
-                serializer = ShoppingCartSerializer(
-                    data={'user': user.id, 'recipe': recipe.id}
-                )
-                serializer.is_valid(raise_exception=True)
-                serializer.save()
-                return Response(serializer.data,
-                                status=status.HTTP_201_CREATED)
-            return Response({'error': 'Рецепт уже в корзине!'},
-                            status=status.HTTP_400_BAD_REQUEST)
+            serializer = ShoppingCartSerializer(
+                data={'user': user.id, 'recipe': recipe.id}
+            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data,
+                            status=status.HTTP_201_CREATED)
 
-        if ShoppingCart.objects.filter(user=user.id,
-                                       recipe=recipe).exists():
-            ShoppingCart.objects.filter(user=user.id,
-                                        recipe=recipe).delete()
+        if recipe_in_cart.exists():
+            recipe_in_cart.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response({'error': 'Рецепт не в корзине!'},
                         status=status.HTTP_400_BAD_REQUEST)
@@ -106,24 +101,19 @@ class RecipesViewSet(ModelViewSet):
         """
         recipe = get_object_or_404(Recipe, id=kwargs['pk'])
         user = request.user
+        recipe_in_favorite = user.favorites.filter(recipe=recipe)
 
         if request.method == 'POST':
-            if not Favorite.objects.filter(user=user.id,
-                                           recipe=recipe).exists():
-                serializer = FavoriteRecipeSerializer(
-                    data={'user': user.id, 'recipe': recipe.id}
-                )
-                serializer.is_valid(raise_exception=True)
-                serializer.save()
-                return Response(serializer.data,
-                                status=status.HTTP_201_CREATED)
-            return Response({'error': 'Рецепт уже в избранном!'},
-                            status=status.HTTP_400_BAD_REQUEST)
+            serializer = FavoriteRecipeSerializer(
+                data={'user': user.id, 'recipe': recipe.id}
+            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data,
+                            status=status.HTTP_201_CREATED)
 
-        if Favorite.objects.filter(user=user.id,
-                                   recipe=recipe).exists():
-            Favorite.objects.filter(user=user.id,
-                                    recipe=recipe).delete()
+        if recipe_in_favorite.exists():
+            recipe_in_favorite.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response({'error': 'Рецепт не в избранном!'},
                         status=status.HTTP_400_BAD_REQUEST)

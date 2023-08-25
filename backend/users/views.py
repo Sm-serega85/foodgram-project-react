@@ -1,4 +1,3 @@
-from api.serializers import UsersSerializer, SubscribeSerializer
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
 from rest_framework import status
@@ -8,6 +7,7 @@ from rest_framework.permissions import (IsAuthenticatedOrReadOnly,
 from rest_framework.response import Response
 
 from .models import CustomUser, Subscribe
+from api.serializers import UsersSerializer, SubscribeSerializer
 
 
 class UsersViewSet(UserViewSet):
@@ -32,7 +32,7 @@ class UsersViewSet(UserViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         if request.method == 'DELETE':
-            Subscribe.objects.filter(user=user, author=author).delete()
+            user.follower.filter(author=author).delete()
             return Response({'detail': 'Вы отписались от этого автора!'},
                             status=status.HTTP_204_NO_CONTENT)
 
