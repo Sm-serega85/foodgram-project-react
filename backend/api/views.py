@@ -11,6 +11,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
 from .methods import create_shopping_cart
+from .filters import IngredientFilter, RecipeFilter
 from .serializers import (
     FavoriteRecipeSerializer,
     ShoppingCartSerializer,
@@ -34,8 +35,7 @@ class IngredientsViewSet(ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ('^name',)
+    filterset_class = IngredientFilter
     pagination_class = None
 
 
@@ -55,6 +55,7 @@ class RecipesViewSet(ModelViewSet):
     """
     queryset = Recipe.objects.all()
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    filterset_class = RecipeFilter
 
     def get_serializer_class(self):
         if self.action in SAFE_METHODS:
